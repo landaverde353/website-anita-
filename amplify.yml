@@ -5,7 +5,7 @@ frontend:
       commands:
         - echo "Static baby shower site - no build step required"
   artifacts:
-    baseDirectory: public
+    baseDirectory: .
     files:
       - '**/*'
   cache:
