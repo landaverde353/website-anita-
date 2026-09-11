@@ -23,54 +23,52 @@ siteNav?.querySelectorAll("a").forEach(link => {
   });
 });
 
-form?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  if (!form.reportValidity()) return;
+const rsvpForm = document.getElementById("rsvpForm");
 
-  const entry = Object.fromEntries(new FormData(form).entries());
-  const payload = {
-    name: entry.name.trim(),
-    contact: entry.contact.trim(),
-    guests: Number(entry.guests),
-    attendance: entry.attendance,
-    message: entry.message.trim()
+rsvpForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(rsvpForm);
+
+  const rsvpData = {
+    name: (formData.get("name") || "").trim(),
+
+    guests: Number(formData.get("guests")),
+
+    attending: formData.get("attendance") === "yes",
+
+    message: (formData.get("message") || "").trim()
   };
 
-  const apiBase = String(window.BABY_SHOWER_API || "").replace(/\/$/, "");
-
-  if (!apiBase) {
-    const saved = JSON.parse(localStorage.getItem("anitaXavierRsvps") || "[]");
-    saved.push({ ...payload, savedAt: new Date().toISOString() });
-    localStorage.setItem("anitaXavierRsvps", JSON.stringify(saved));
-    notify("Preview mode: RSVP saved in this browser.");
-    form.reset();
-    return;
-  }
-
-  const originalLabel = sendButton.textContent;
-  sendButton.disabled = true;
-  sendButton.textContent = "Sending…";
+  console.log("Sending RSVP:", rsvpData);
 
   try {
-    const response = await fetch(`${apiBase}/rsvp`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    });
+    const response = await fetch(
+      "YOUR-API-URL/rsvp",
+      {
+        method: "POST",
 
-    if (!response.ok) {
-      throw new Error(`RSVP request failed with status ${response.status}`);
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(rsvpData)
+      }
+    );
+
+    const result = await response.json();
+
+    console.log("Response:", result);
+
+    if (response.ok) {
+      alert("RSVP submitted! ♡");
+      rsvpForm.reset();
+    } else {
+      console.error("API error:", result);
     }
 
-    notify("Thank you! Your RSVP has been received.");
-    form.reset();
   } catch (error) {
-    console.error(error);
-    notify("Your RSVP could not be sent. Please try again.");
-  } finally {
-    sendButton.disabled = false;
-    sendButton.textContent = originalLabel;
+    console.error("RSVP request failed:", error);
   }
 });
+
