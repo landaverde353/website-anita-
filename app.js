@@ -44,7 +44,7 @@ rsvpForm.addEventListener("submit", async (event) => {
 
   try {
     const response = await fetch(
-      "https://mucclsre80.execute-api.us-east-1.amazonaws.com/",
+      "https://mucclsre80.execute-api.us-east-1.amazonaws.com/Rsvp",
       {
         method: "POST",
 
